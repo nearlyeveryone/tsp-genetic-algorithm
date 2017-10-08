@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	
 	vector<thread> algorithmThreads;
 	vector<TsmHelper*> tsmHelpers;
-	int generations = 1000;
+	int generations = 3000;
 	
 	for(int i = 0; i < 4; i++)
 	{
