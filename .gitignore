@@ -1,3 +1,4 @@
 school/
 **/.codelite
 **/Debug
+**/glad.c
