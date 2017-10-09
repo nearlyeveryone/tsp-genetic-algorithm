@@ -51,6 +51,16 @@ void TsmHelper::addPointToGraph(int generation, double distance)
 	lock_guard<mutex> lockGuard(muteGraph);
 	generationGraph.push_back(point);
 }
+void TsmHelper::setJobFinished(bool state)
+{
+	lock_guard<mutex> lockGuard(muteJob);
+	jobFinished = state;
+}
+bool TsmHelper::IsJobFinished()
+{
+	lock_guard<mutex> lockGuard(muteJob);
+	return jobFinished;
+}
 
 void TsmHelper::GeneticStatistics(int sampleSize, int populationSize, int generations, bool reverseCrossover, bool adaptiveMutator)
 {
@@ -93,29 +103,21 @@ void TsmHelper::GeneticStatistics(int sampleSize, int populationSize, int genera
 	routeStats = routeStatistics;
 }
 
-void TsmHelper::GeneticAlgorithm(int populationSize, int generations, bool reverseCrossover, bool adaptiveMutator)
+void TsmHelper::GeneticAlgorithm2(vector<SalesmanRoute> initalPopulation, int populationSize, int generations, bool reverseCrossover, bool adaptiveMutator)
 {
-	vector<SalesmanRoute> population;
+	vector<SalesmanRoute> population = initalPopulation;
 	
-	vector<City> cities = GetBestRoute().GetRoute();
-	int mutationRate = (cities.size()/20)+1;
 	srand(time(NULL));
 	
-	SalesmanRoute overallBestRoute;
-	double previousDistance = -1;
-	double generationsSinceChange = 0;
-	
-	for(int i = 0; i < populationSize; i++)
-	{
-		SalesmanRoute initalRoute;
-		random_shuffle(cities.begin(), cities.end());
-		initalRoute = SalesmanRoute(cities);
-		population.push_back(initalRoute);
-	}
 	setCurrentGeneration(0);
 	setBestRoute(population[0]);
 	clearGraphPoints();
 	addPointToGraph(0, GetBestRoute().GetTotalDistance());
+	
+	int mutationRate = (GetBestRoute().GetRoute().size()/20)+1;
+	SalesmanRoute overallBestRoute;
+	double previousDistance = -1;
+	double generationsSinceChange = 0;
 	
 	for(int i = 0; i < generations; i++)
 	{
@@ -175,4 +177,22 @@ void TsmHelper::GeneticAlgorithm(int populationSize, int generations, bool rever
 		setCurrentGeneration(i+1);
 		addPointToGraph(i+1, population[0].GetTotalDistance());
 	}
+	
+	setJobFinished(true);
+}
+
+void TsmHelper::GeneticAlgorithm(int populationSize, int generations, bool reverseCrossover, bool adaptiveMutator)
+{
+	vector<City> cities = GetBestRoute().GetRoute();
+	
+	vector<SalesmanRoute> initalPopulation;
+	for(int i = 0; i < populationSize; i++)
+	{
+		SalesmanRoute initalRoute;
+		random_shuffle(cities.begin(), cities.end());
+		initalRoute = SalesmanRoute(cities);
+		initalPopulation.push_back(initalRoute);
+	}
+	
+	GeneticAlgorithm2(initalPopulation, populationSize, generations, reverseCrossover, adaptiveMutator);
 }

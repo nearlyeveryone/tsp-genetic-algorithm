@@ -34,10 +34,13 @@ private:
 	mutex muteGeneration;
 	vector<GraphPoint> generationGraph;
 	mutex muteGraph;
+	bool jobFinished = false;
+	mutex muteJob;
 	void setBestRoute(SalesmanRoute route);
 	void setCurrentGeneration(int generation);
 	void addPointToGraph(int generation, double distance);
 	void clearGraphPoints();
+	void setJobFinished(bool state);
 	
 public:
 	TsmHelper();
@@ -46,7 +49,9 @@ public:
 	int GetCurrentGeneration();
 	vector<GraphPoint> GetGenerationGraph();
 	void GeneticAlgorithm(int populationSize, int generations, bool reverseCrossover, bool adaptiveMutator);
+	void GeneticAlgorithm2(vector<SalesmanRoute> initalPopulation, int populationSize, int generations, bool reverseCrossover, bool adaptiveMutator);
 	void GeneticStatistics(int sampleSize, int populationSize, int generations, bool reverseCrossover, bool adaptiveMutator);
+	bool IsJobFinished();
 	struct RouteStatistics routeStats;
 	~TsmHelper(); 
 
